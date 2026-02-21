@@ -7,8 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Gochi+Hand&display=swap" rel="stylesheet">
     <style>
         :root {
-            --chalk-white: #f5f5f5;
-            --board-bg: #2c2f33;
+            --chalk-white: #ffffff;
+            --chalk-accent: #e0e0e0;
+            --board-bg: #1e2024;
+            --chalk-border: rgba(255, 255, 255, 0.4);
         }
 
         body, html {
@@ -23,174 +25,254 @@
             user-select: none;
         }
 
-        /* Chalkboard texture */
+        /* Chalkboard texture with a more "worn" look */
         .board {
             position: relative;
             width: 100vw;
             height: 100vh;
-            background-image:
+            background:
+                linear-gradient(rgba(30, 32, 36, 0.8), rgba(30, 32, 36, 0.8)),
                 url('https://www.transparenttextures.com/patterns/chalkboard.png'),
-                radial-gradient(circle at center, #3d4147 0%, #2c2f33 100%);
+                radial-gradient(circle at center, #2c2f33 0%, #1a1c20 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
+        }
+
+        /* SVG Filter for Chalk Effect */
+        .chalk-text {
+            filter: url(#chalk-effect);
+        }
+
+        .slide {
+            display: none;
+            width: 90%;
+            max-width: 1100px;
+            text-align: center;
+            animation: slideIn 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 15px;
+        }
+
+        .slide.active {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
 
-        .slide {
-            display: none;
-            width: 80%;
-            max-width: 900px;
-            text-align: center;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        .slide.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes slideIn {
+            from { opacity: 0; transform: scale(0.95) rotate(-1deg); }
+            to { opacity: 1; transform: scale(1) rotate(0deg); }
         }
 
         h1 {
             font-family: 'Gochi Hand', cursive;
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            font-size: 6rem;
+            margin: 0 0 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            line-height: 1.1;
         }
 
         h2 {
             font-family: 'Gochi Hand', cursive;
-            font-size: 3rem;
-            margin-bottom: 2rem;
-            border-bottom: 2px dashed var(--chalk-white);
+            font-size: 4.5rem;
+            margin: 0 0 30px 0;
+            position: relative;
             display: inline-block;
-            padding-bottom: 10px;
         }
 
-        p, li {
-            font-size: 2rem;
-            line-height: 1.4;
-            margin-bottom: 1rem;
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: -5%;
+            width: 110%;
+            height: 4px;
+            background: var(--chalk-white);
+            mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 4"><path d="M0,2 Q25,0 50,2 T100,2" stroke="black" fill="transparent"/></svg>');
+            opacity: 0.6;
+            border-bottom: 3px solid white;
+            border-radius: 50% 50% 50% 50% / 10% 10% 10% 10% ;
+        }
+
+        p {
+            font-size: 3rem;
+            line-height: 1.2;
+            margin: 15px 0;
         }
 
         ul {
             text-align: left;
-            display: inline-block;
-            list-style-type: none;
+            font-size: 2.8rem;
+            line-height: 1.3;
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
         }
 
-        ul li::before {
-            content: "• ";
-            color: var(--chalk-white);
+        li {
+            margin-bottom: 20px;
+            position: relative;
+            padding-left: 50px;
         }
 
-        /* Decorations */
+        li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 15px;
+            width: 25px;
+            height: 25px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>');
+            background-repeat: no-repeat;
+        }
+
+        /* Doodles and Decorations */
         .decoration {
             position: absolute;
             pointer-events: none;
-            opacity: 0.7;
+            opacity: 0.4;
         }
 
-        .city-scape {
+        .map-brazil {
+            top: 10%;
+            right: 5%;
+            width: 300px;
+            opacity: 0.2;
+        }
+
+        .human-icon {
+            bottom: 10%;
+            left: 5%;
+            width: 150px;
+        }
+
+        .corner-doodle {
+            width: 100px;
+            height: 100px;
+        }
+        .top-left { top: 20px; left: 20px; }
+        .top-right { top: 20px; right: 20px; transform: rotate(90deg); }
+        .bottom-left { bottom: 80px; left: 20px; transform: rotate(-90deg); }
+        .bottom-right { bottom: 80px; right: 20px; transform: rotate(180deg); }
+
+        /* Navigation Controls - Improved */
+        .ui-container {
+            position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 150px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 150" preserveAspectRatio="none"><path d="M0,140 Q50,130 100,140 T200,140 T300,140 T400,140 T500,140 T600,140 T700,140 T800,140 T900,140 T1000,140" fill="none" stroke="white" stroke-width="2"/><rect x="50" y="100" width="30" height="40" fill="none" stroke="white" stroke-width="1"/><rect x="60" y="110" width="5" height="5" fill="none" stroke="white" stroke-width="1"/><rect x="75" y="110" width="5" height="5" fill="none" stroke="white" stroke-width="1"/><rect x="120" y="80" width="40" height="60" fill="none" stroke="white" stroke-width="1"/><line x1="140" y1="80" x2="140" y2="140" stroke="white" stroke-width="1"/><circle cx="200" cy="110" r="15" fill="none" stroke="white" stroke-width="1"/><line x1="200" y1="125" x2="200" y2="140" stroke="white" stroke-width="1"/><rect x="250" y="90" width="20" height="50" fill="none" stroke="white" stroke-width="1"/><rect x="300" y="60" width="35" height="80" fill="none" stroke="white" stroke-width="1"/><rect x="400" y="100" width="40" height="40" fill="none" stroke="white" stroke-width="1"/><circle cx="480" cy="120" r="10" fill="none" stroke="white" stroke-width="1"/><line x1="480" y1="130" x2="480" y2="140" stroke="white" stroke-width="1"/><rect x="550" y="70" width="30" height="70" fill="none" stroke="white" stroke-width="1"/><rect x="650" y="90" width="40" height="50" fill="none" stroke="white" stroke-width="1"/><rect x="750" y="50" width="30" height="90" fill="none" stroke="white" stroke-width="1"/><path d="M820,140 L840,100 L860,140" fill="none" stroke="white" stroke-width="1"/><rect x="900" y="110" width="50" height="30" fill="none" stroke="white" stroke-width="1"/></svg>');
-            background-repeat: repeat-x;
-            background-size: 100% 100%;
-        }
-
-        .cloud {
-            top: 50px;
-            width: 100px;
-            height: 50px;
-        }
-
-        .cloud-1 { left: 10%; }
-        .cloud-2 { right: 15%; top: 80px; }
-
-        .book {
-            top: 40px;
-            left: 40px;
-            width: 60px;
-            height: 60px;
-            border: 2px solid white;
-            border-radius: 5px;
+            padding: 20px 40px;
+            box-sizing: border-box;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            transform: rotate(-15deg);
+            background: rgba(0,0,0,0.1);
         }
 
-        /* Navigation Controls */
         .controls {
-            position: absolute;
-            bottom: 30px;
-            right: 40px;
             display: flex;
-            gap: 20px;
-            z-index: 100;
+            gap: 30px;
         }
 
         button {
-            background: transparent;
-            border: 2px solid var(--chalk-white);
+            background: rgba(255, 255, 255, 0.05);
+            border: 3px solid var(--chalk-white);
             color: var(--chalk-white);
-            padding: 10px 20px;
+            padding: 15px 40px;
             font-family: 'Gochi Hand', cursive;
-            font-size: 1.5rem;
+            font-size: 2.2rem;
             cursor: pointer;
-            border-radius: 10px;
-            transition: all 0.3s;
+            border-radius: 15px;
+            transition: all 0.2s;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.3);
         }
 
         button:hover {
+            transform: translateY(-3px);
             background: var(--chalk-white);
             color: var(--board-bg);
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
         }
 
         .slide-number {
-            position: absolute;
-            bottom: 30px;
-            left: 40px;
-            font-size: 1.5rem;
+            font-size: 2.5rem;
+            font-family: 'Gochi Hand', cursive;
         }
 
-        /* Custom style for names list */
-        .names-list {
-            font-size: 1.5rem;
-            margin-top: 20px;
-            columns: 2;
-            column-gap: 40px;
+        /* Final Slide Special Layout */
+        .credits-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px 60px;
             text-align: left;
+            margin-top: 40px;
+            font-size: 2.2rem;
         }
+
+        .student-name {
+            border-bottom: 1px dashed rgba(255,255,255,0.3);
+            padding-bottom: 5px;
+        }
+
+        .highlight {
+            color: #fff;
+            background: rgba(255,255,255,0.1);
+            padding: 0 10px;
+            border-radius: 5px;
+        }
+
+        /* Emphasis */
+        b {
+            color: #fff;
+            text-decoration: underline wavy rgba(255,255,255,0.5);
+        }
+
     </style>
 </head>
 <body>
+    <!-- SVG Filters for Chalk Aesthetic -->
+    <svg style="display: none;">
+        <filter id="chalk-effect">
+            <feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="5" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" />
+        </filter>
+    </svg>
+
     <div class="board">
         <!-- Background elements -->
-        <div class="decoration city-scape"></div>
-        <div class="decoration cloud cloud-1">
-            <svg viewBox="0 0 100 50"><path d="M10,40 Q25,10 40,30 Q55,0 75,30 Q95,10 90,40 Z" fill="none" stroke="white" stroke-width="2"/></svg>
-        </div>
-        <div class="decoration cloud cloud-2">
-            <svg viewBox="0 0 100 50"><path d="M10,40 Q25,10 40,30 Q55,0 75,30 Q95,10 90,40 Z" fill="none" stroke="white" stroke-width="2"/></svg>
-        </div>
-        <div class="decoration book">
-             <svg viewBox="0 0 50 50"><path d="M10,10 L40,10 L40,40 L10,40 Z M15,10 L15,40 M10,15 L40,15" fill="none" stroke="white" stroke-width="2"/></svg>
-        </div>
+        <svg class="decoration map-brazil" viewBox="0 0 200 200">
+            <path d="M100,20 Q120,20 140,40 T160,80 T150,130 T120,170 T80,180 T40,150 T30,100 T50,50 T100,20" fill="none" stroke="white" stroke-width="1" stroke-dasharray="5,5" />
+        </svg>
+
+        <svg class="decoration human-icon" viewBox="0 0 100 100">
+            <circle cx="50" cy="30" r="15" fill="none" stroke="white" stroke-width="2"/>
+            <path d="M20,90 Q50,50 80,90" fill="none" stroke="white" stroke-width="2"/>
+            <path d="M30,60 L10,70 M70,60 L90,70" stroke="white" stroke-width="2"/>
+        </svg>
+
+        <svg class="decoration corner-doodle top-left" viewBox="0 0 100 100"><path d="M10,10 Q50,10 50,50 T90,90" fill="none" stroke="white" stroke-opacity="0.3"/></svg>
+        <svg class="decoration corner-doodle top-right" viewBox="0 0 100 100"><path d="M10,10 Q50,10 50,50 T90,90" fill="none" stroke="white" stroke-opacity="0.3"/></svg>
+        <svg class="decoration corner-doodle bottom-left" viewBox="0 0 100 100"><path d="M10,10 Q50,10 50,50 T90,90" fill="none" stroke="white" stroke-opacity="0.3"/></svg>
+        <svg class="decoration corner-doodle bottom-right" viewBox="0 0 100 100"><path d="M10,10 Q50,10 50,50 T90,90" fill="none" stroke="white" stroke-opacity="0.3"/></svg>
 
         <!-- Slides -->
         <div class="slide active" id="slide-1">
-            <h1 id="main-title">Direitos Humanos Hoje</h1>
-            <h2 id="sub-title">Refugiados Haitianos e Venezuelanos no Brasil</h2>
-            <p style="margin-top: 50px;">Disciplina: Ensino Religioso</p>
-            <p>Turma: 903</p>
+            <h1 class="chalk-text">Direitos Humanos Hoje</h1>
+            <h2 style="font-size: 4rem;">Refugiados Haitianos e Venezuelanos no Brasil</h2>
+            <div style="margin-top: 60px;">
+                <p class="highlight">Disciplina: Ensino Religioso</p>
+                <p>Turma: <span class="highlight">903</span></p>
+            </div>
         </div>
 
         <div class="slide" id="slide-2">
@@ -198,119 +280,125 @@
             <ul>
                 <li>Direitos fundamentais de todo ser humano.</li>
                 <li>Independem de cor, gênero ou nacionalidade.</li>
-                <li>Baseados na dignidade e no respeito mútuo.</li>
-                <li>Protegem a liberdade e a vida.</li>
+                <li>Baseados na <b>dignidade</b> e no respeito mútuo.</li>
+                <li>Protegem a liberdade e a própria vida.</li>
             </ul>
         </div>
 
         <div class="slide" id="slide-3">
             <h2>02. A Crise Migratória Atual</h2>
-            <p>O mundo vive o maior deslocamento humano da história.</p>
+            <p>O mundo vive o maior deslocamento humano da história moderna.</p>
             <ul>
-                <li>Guerras, desastres naturais e crises econômicas.</li>
-                <li>Milhões buscam um novo lar e segurança.</li>
-                <li>O Brasil é um destino importante na América Latina.</li>
+                <li>Guerras, desastres e crises econômicas extremas.</li>
+                <li>Milhões buscam segurança e um recomeço.</li>
+                <li>O Brasil tornou-se um porto seguro na América Latina.</li>
             </ul>
         </div>
 
         <div class="slide" id="slide-4">
             <h2>03. Refugiados Haitianos</h2>
-            <p>A migração em massa começou após o terremoto de 2010.</p>
+            <p>A migração intensificou-se após o terrível terremoto de 2010.</p>
             <ul>
-                <li>Busca por sobrevivência e reconstrução de vida.</li>
-                <li>Entrada principal pela fronteira norte (Acre).</li>
-                <li>Contribuição cultural e laboral ao Brasil.</li>
+                <li>Busca desesperada por sobrevivência.</li>
+                <li>Entrada marcante pela fronteira do Acre.</li>
+                <li>Povo que traz força de trabalho e rica cultura.</li>
             </ul>
         </div>
 
         <div class="slide" id="slide-5">
             <h2>04. Desafios da Integração</h2>
             <ul>
-                <li>Barreira do idioma (Francês e Crioulo).</li>
-                <li>Dificuldade em obter empregos qualificados.</li>
-                <li>Adaptação a um clima e cultura diferentes.</li>
-                <li>Necessidade de acolhimento solidário.</li>
+                <li>A barreira linguística (Francês e Crioulo).</li>
+                <li>Preconceito e subemprego nas grandes cidades.</li>
+                <li>Saudade da família e choque cultural.</li>
+                <li>A necessidade urgente de <b>acolhimento</b>.</li>
             </ul>
         </div>
 
         <div class="slide" id="slide-6">
             <h2>05. Refugiados Venezuelanos</h2>
-            <p>Fuga de uma grave crise política e econômica.</p>
+            <p>Fuga de um colapso político e econômico sem precedentes.</p>
             <ul>
-                <li>Escassez de alimentos, remédios e inflação alta.</li>
-                <li>Milhares atravessam a fronteira em Roraima diariamente.</li>
-                <li>Uma das maiores crises humanitárias do continente.</li>
+                <li>Falta de comida, remédios e inflação descontrolada.</li>
+                <li>Milhares cruzam a fronteira em Roraima (Pacaraima).</li>
+                <li>Uma crise humanitária que exige nossa atenção.</li>
             </ul>
         </div>
 
         <div class="slide" id="slide-7">
             <h2>06. Operação Acolhida</h2>
-            <p>A resposta humanitária do governo brasileiro.</p>
+            <p>A resposta humanitária exemplar do Brasil.</p>
             <ul>
-                <li>Ordenamento da fronteira e documentação.</li>
-                <li>Abrigos e assistência médica imediata.</li>
-                <li><b>Interiorização:</b> deslocamento para outros estados.</li>
+                <li>Organização, documentação e vacinação.</li>
+                <li><b>Interiorização:</b> levar famílias para outros estados.</li>
+                <li>Garantia de que ninguém fique desamparado na rua.</li>
             </ul>
         </div>
 
         <div class="slide" id="slide-8">
             <h2>07. Direitos Garantidos por Lei</h2>
-            <p>A Nova Lei de Migração (2017) assegura:</p>
+            <p>A Lei de Migração de 2017 é um marco:</p>
             <ul>
-                <li>Acesso à saúde pública (SUS) e educação.</li>
-                <li>Direito ao trabalho e documentação.</li>
-                <li>Proteção contra discriminação e xenofobia.</li>
+                <li>Acesso pleno ao SUS e à escola pública.</li>
+                <li>Direito ao trabalho formal com carteira assinada.</li>
+                <li>Proteção legal contra qualquer tipo de ódio.</li>
             </ul>
         </div>
 
         <div class="slide" id="slide-9">
             <h2>08. Ética e Ensino Religioso</h2>
-            <p>"Acolher o estrangeiro é um ato de amor."</p>
+            <p><i>"Acolher o estrangeiro é um ato de profunda humanidade."</i></p>
             <ul>
-                <li>Valores de empatia, compaixão e hospitalidade.</li>
-                <li>O respeito ao próximo como fundamento ético.</li>
-                <li>A importância da solidariedade nas religiões.</li>
+                <li>Empatia: colocar-se no lugar de quem perdeu tudo.</li>
+                <li>A hospitalidade como valor espiritual universal.</li>
+                <li>A solidariedade que une diferentes crenças.</li>
             </ul>
         </div>
 
         <div class="slide" id="slide-10">
             <h2>09. Combate à Xenofobia</h2>
             <ul>
-                <li>Xenofobia é o preconceito contra o estrangeiro.</li>
-                <li>Devemos combater o ódio com informação e paz.</li>
-                <li>A diversidade enriquece nossa cultura e sociedade.</li>
-                <li>Ninguém escolhe ser refugiado; é uma necessidade.</li>
+                <li><b>Xenofobia</b> é crime e fere a dignidade humana.</li>
+                <li>Combater o medo do "diferente" com educação.</li>
+                <li>A diversidade torna o Brasil um país mais rico.</li>
+                <li>Refugiados são pessoas com sonhos, como nós.</li>
             </ul>
         </div>
 
         <div class="slide" id="slide-11">
             <h2>10. Conclusão</h2>
-            <p>Garantir Direitos Humanos é construir um futuro justo.</p>
+            <p>Direitos Humanos não têm fronteiras.</p>
             <ul>
-                <li>O acolhimento é um dever de todos nós.</li>
-                <li>Brasil: terra de mistura e esperança.</li>
-                <li>Pela dignidade de haitianos, venezuelanos e todos.</li>
+                <li>O acolhimento é um dever ético e social.</li>
+                <li>Solidariedade gera um mundo mais justo.</li>
+                <li>Respeito aos nossos irmãos vizinhos!</li>
             </ul>
         </div>
 
         <div class="slide" id="slide-12">
-            <h1>Obrigado pela Atenção!</h1>
-            <p>Equipe:</p>
-            <div class="names-list">
-                M.Sofia; Nirral Rafael;<br>
-                M.Hellena; M.Fernanda;<br>
-                Sophia Tayna; Fábio Augusto;<br>
-                Pedro Paulo; Levi Luís;<br>
-                Arthur dos Reis.
+            <h1 class="chalk-text" style="font-size: 5rem;">Obrigado pela Atenção!</h1>
+            <p style="font-size: 3.5rem; margin-bottom: 10px;">Equipe:</p>
+            <div class="credits-grid">
+                <div class="student-name">M.Sofia</div>
+                <div class="student-name">Pedro Paulo</div>
+                <div class="student-name">Nirral Rafael</div>
+                <div class="student-name">Levi Luís</div>
+                <div class="student-name">M.Hellena</div>
+                <div class="student-name">Arthur dos Reis</div>
+                <div class="student-name">M.Fernanda</div>
+                <div class="student-name">Sophia Tayna</div>
+                <div class="student-name">Fábio Augusto</div>
+                <div class="highlight">Turma 903</div>
             </div>
-            <p style="margin-top: 30px;">Turma 903</p>
         </div>
 
         <!-- Progress and controls -->
-        <div class="slide-number"><span id="current">1</span> / 12</div>
-        <div class="controls">
-            <button onclick="prevSlide()">Anterior</button>
-            <button onclick="nextSlide()">Próximo</button>
+        <div class="ui-container">
+            <div class="slide-number">Página: <span id="current">1</span> / 12</div>
+            <div class="controls">
+                <button onclick="prevSlide()">← Anterior</button>
+                <button onclick="nextSlide()">Próximo →</button>
+            </div>
         </div>
     </div>
 
@@ -320,8 +408,11 @@
 
         function showSlide(n) {
             document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
-            document.getElementById('slide-' + n).classList.add('active');
-            document.getElementById('current').innerText = n;
+            const next = document.getElementById('slide-' + n);
+            if(next) {
+                next.classList.add('active');
+                document.getElementById('current').innerText = n;
+            }
         }
 
         function nextSlide() {
@@ -339,8 +430,15 @@
         }
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') nextSlide();
             if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // Click to advance
+        document.querySelector('.board').addEventListener('click', (e) => {
+            if (e.target.tagName !== 'BUTTON') {
+                // nextSlide(); // Disabled to avoid accidental clicks while using buttons
+            }
         });
     </script>
 </body>
